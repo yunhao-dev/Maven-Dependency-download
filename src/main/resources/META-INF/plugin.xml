@@ -13,17 +13,12 @@
     <depends>com.intellij.modules.platform</depends>
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-
+        <fileEditorProvider implementation="com.wild.maven.analyzer.PomEditorProvider"/>
     </extensions>
-    <extensions defaultExtensionNs="org.jetbrains.idea.maven">
 
-    </extensions>
 
     <actions>
         <!-- Add your actions here -->
-        <action id="MvnDownloadAction" class="com.wild.maven.action.MvnDownloadAction"
-                text="ORMCodeGenerate - 小傅哥" description="Code Generate ORM" icon="/icons/maven.png">
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-        </action>
+
     </actions>
 </idea-plugin>
