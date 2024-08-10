@@ -1,0 +1,29 @@
+<idea-plugin>
+    <id>com.wild.Maven-Dependency-download</id>
+    <name>Maven Dependency download</name>
+    <vendor email="2384982531@qq.com">yunhao_dev</vendor>
+
+    <description><![CDATA[
+    - 解决Maven Pom文件依赖下载失败问题<br>
+    - Fix the issue that Maven Pom file dependencies fail to be downloaded
+    ]]></description>
+
+    <!-- please see https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.platform</depends>
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+
+    </extensions>
+    <extensions defaultExtensionNs="org.jetbrains.idea.maven">
+
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action id="MvnDownloadAction" class="com.wild.maven.action.MvnDownloadAction"
+                text="ORMCodeGenerate - 小傅哥" description="Code Generate ORM" icon="/icons/maven.png">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
