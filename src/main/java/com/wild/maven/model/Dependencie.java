@@ -5,15 +5,15 @@ package com.wild.maven.model;
  * @Author: yunhao_dev
  * @Date: 2024/8/10 16:31
  */
-public class Dependencies {
+public class Dependencie {
     private String groupId;
     private String artifactId;
     private String version;
 
-    public Dependencies(){
+    public Dependencie(){
 
     }
-    public Dependencies(String groupId, String artifactId, String version) {
+    public Dependencie(String groupId, String artifactId, String version) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
