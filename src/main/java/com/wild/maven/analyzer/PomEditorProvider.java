@@ -22,6 +22,7 @@ import static org.jetbrains.idea.maven.utils.MavenUtil.isPotentialPomFile;
  */
 public class PomEditorProvider implements FileEditorProvider, DumbAware {
     private static final Logger log = Logger.getInstance(PomEditorProvider.class);
+    private static String EDITOR_TYPE_ID = "Maven Download";
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile file) {
         return isPomFile(project,file);
@@ -32,7 +33,7 @@ public class PomEditorProvider implements FileEditorProvider, DumbAware {
         if(!isPotentialPomFile(name)){
             return false;
         }
-        MavenProjectsManager instance = MavenProjectsManager.getInstance(project);
+        final MavenProjectsManager instance = MavenProjectsManager.getInstance(project);
         if(instance == null){
             return false;
         }
@@ -46,16 +47,17 @@ public class PomEditorProvider implements FileEditorProvider, DumbAware {
 
     @Override
     public @NotNull FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
-        return null;
+        log.assertTrue(accept(project,file));
+        return new UIFormEditor(project,file);
     }
 
     @Override
     public @NotNull @NonNls String getEditorTypeId() {
-        return null;
+        return EDITOR_TYPE_ID;
     }
 
     @Override
     public @NotNull FileEditorPolicy getPolicy() {
-        return null;
+        return FileEditorPolicy.PLACE_AFTER_DEFAULT_EDITOR;
     }
 }

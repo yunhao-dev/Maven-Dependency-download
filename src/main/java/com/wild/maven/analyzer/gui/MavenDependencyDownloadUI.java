@@ -1,7 +1,109 @@
-package com.wild.maven.analyzer.gui;/**
-* @description: 
-* @Author: yunhao_dev
-* @Date: 2024/8/11 15:13
-*
-*/ public class MavenDependencyDownloadUI {
+package com.wild.maven.analyzer.gui;
+
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.wild.maven.model.Dependencie;
+import com.wild.maven.model.DependencieTableData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+
+import javax.swing.*;
+import javax.swing.border.MatteBorder;
+import java.awt.*;
+import java.util.List;
+
+/**
+ * @description:
+ * @Author: yunhao_dev
+ * @Date: 2024/8/11 15:13
+ */
+public class MavenDependencyDownloadUI {
+    private final Project project;
+    private final VirtualFile file;
+    private MavenProject mavenProject;
+    private MavenProjectsManager mavenProjectsManager;
+
+    private JPanel mainPanel;
+    private JButton downloadAllButton;
+    private JTextField filterTextField;
+    private JScrollPane tableScrollPanel;
+    private JPanel denTitleGroupPanel;
+    private JButton downloadButton;
+
+
+
+    public MavenDependencyDownloadUI(@NotNull Project project, VirtualFile file, final MavenProject mavenProject) {
+        this.project = project;
+        this.file = file;
+        mavenProjectsManager = MavenProjectsManager.getInstance(project);
+        this.mavenProject = mavenProject;
+
+
+        initUI();
+        downloadAllButton.addActionListener(e -> {
+            // 下载所有依赖的逻辑
+            JOptionPane.showMessageDialog(null, "Downloading all...");
+        });
+
+
+    }
+
+    public JComponent getRootComponent(){
+        return mainPanel;
+    }
+
+    private void initUI() {
+        denTitleGroupPanel.setLayout(new GridLayout(1, 4));
+        DependencieTableData dependencieTableData = new DependencieTableData();
+        for (String title : dependencieTableData.getTitle()) {
+            JLabel jLabel = new JLabel(title, JLabel.CENTER);
+            denTitleGroupPanel.add(jLabel);
+        }
+
+        // 填入数据
+        Dependencie d1 = new Dependencie("com.example", "example-app", "1.0.0");
+        Dependencie d2 = new Dependencie("junit", "junit", "4.13.2");
+        Dependencie d3 = new Dependencie("com.fasterxml.jackson.core", "jackson-databind", "2.12.4");
+        dependencieTableData.setDependencies(d1);
+        dependencieTableData.setDependencies(d2);
+        dependencieTableData.setDependencies(d3);
+
+        List<Dependencie> dependencies = dependencieTableData.getDependencies();
+
+        // 使用 BoxLayout 纵向排列依赖项
+        JPanel tablePanel = new JPanel();
+        tablePanel.setLayout(new BoxLayout(tablePanel, BoxLayout.Y_AXIS));
+
+        for (Dependencie dependency : dependencies) {
+            JPanel jPanel = new JPanel(new GridLayout(1, 4));
+            JLabel groupId = new JLabel(dependency.getGroupId(), JLabel.CENTER);
+            JLabel artifactId = new JLabel(dependency.getArtifactId(), JLabel.CENTER);
+            JLabel version = new JLabel(dependency.getVersion(), JLabel.CENTER);
+            JPanel buttonPanel = new JPanel();
+            JButton download = new JButton("Download");
+            buttonPanel.add(Box.createHorizontalGlue());
+            buttonPanel.add(download);
+            buttonPanel.add(Box.createHorizontalGlue());
+            jPanel.add(groupId);
+            jPanel.add(artifactId);
+            jPanel.add(version);
+            jPanel.add(buttonPanel);
+
+            // 设置 JPanel 固定的高度
+            jPanel.setPreferredSize(new Dimension(tablePanel.getWidth(), 40));
+            jPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+
+            // 设置 Jpanel 上边框
+            jPanel.setBorder(new MatteBorder(1, 0, 0, 0, Color.BLACK));
+
+            tablePanel.add(jPanel);
+            download.addActionListener(e ->{
+                // TODO dependency 下载
+            });
+        }
+
+        // 将 tablePanel 设置为 JScrollPane 的视图组件
+        tableScrollPanel.setViewportView(tablePanel);
+    }
 }
