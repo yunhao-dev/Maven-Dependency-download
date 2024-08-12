@@ -2,8 +2,8 @@ package com.wild.maven.analyzer.gui;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.wild.maven.PomFileAnalyzer;
 import com.wild.maven.model.Dependencie;
-import com.wild.maven.model.DependencieTableData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -19,6 +19,7 @@ import java.util.List;
  * @Date: 2024/8/11 15:13
  */
 public class MavenDependencyDownloadUI {
+    private final String[] TITLE = {"GroupId","ArtifactId","Version","Action"};
     private final Project project;
     private final VirtualFile file;
     private MavenProject mavenProject;
@@ -55,21 +56,13 @@ public class MavenDependencyDownloadUI {
 
     private void initUI() {
         denTitleGroupPanel.setLayout(new GridLayout(1, 4));
-        DependencieTableData dependencieTableData = new DependencieTableData();
-        for (String title : dependencieTableData.getTitle()) {
+
+        for (String title : TITLE) {
             JLabel jLabel = new JLabel(title, JLabel.CENTER);
             denTitleGroupPanel.add(jLabel);
         }
 
-        // 填入数据
-        Dependencie d1 = new Dependencie("com.example", "example-app", "1.0.0");
-        Dependencie d2 = new Dependencie("junit", "junit", "4.13.2");
-        Dependencie d3 = new Dependencie("com.fasterxml.jackson.core", "jackson-databind", "2.12.4");
-        dependencieTableData.setDependencies(d1);
-        dependencieTableData.setDependencies(d2);
-        dependencieTableData.setDependencies(d3);
-
-        List<Dependencie> dependencies = dependencieTableData.getDependencies();
+        List<Dependencie> dependencies = PomFileAnalyzer.getDependencies(file);
 
         // 使用 BoxLayout 纵向排列依赖项
         JPanel tablePanel = new JPanel();
