@@ -1,0 +1,4 @@
+- 解决Maven Pom文件依赖下载失败问题<br>
+- Fix the issue that Maven Pom file dependencies fail to be downloaded
+- 该版本(V1.0)只能进行简单的下载,点击下载后请稍等一会重启项目
+- This version (V1.0) can only be downloaded simply, please wait for a while to restart the project after clicking download
