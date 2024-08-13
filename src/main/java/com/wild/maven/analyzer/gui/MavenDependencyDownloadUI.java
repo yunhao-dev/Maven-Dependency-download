@@ -3,7 +3,9 @@ package com.wild.maven.analyzer.gui;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.wild.maven.PomFileAnalyzer;
+import com.wild.maven.UrlAnalyzer;
 import com.wild.maven.model.Dependencie;
+import com.wild.maven.util.DependenciesHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -13,13 +15,15 @@ import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.util.List;
 
+import static com.wild.maven.util.DependenciesHolder.TITLE;
+
 /**
  * @description:
  * @Author: yunhao_dev
  * @Date: 2024/8/11 15:13
  */
 public class MavenDependencyDownloadUI {
-    private final String[] TITLE = {"GroupId","ArtifactId","Version","Action"};
+
     private final Project project;
     private final VirtualFile file;
     private MavenProject mavenProject;
@@ -62,8 +66,8 @@ public class MavenDependencyDownloadUI {
             denTitleGroupPanel.add(jLabel);
         }
 
-        List<Dependencie> dependencies = PomFileAnalyzer.getDependencies(file);
-
+        DependenciesHolder.setDependenciesList(PomFileAnalyzer.getDependencies(file));
+        List<Dependencie> dependencies = DependenciesHolder.getDependencies();
         // 使用 BoxLayout 纵向排列依赖项
         JPanel tablePanel = new JPanel();
         tablePanel.setLayout(new BoxLayout(tablePanel, BoxLayout.Y_AXIS));
@@ -92,7 +96,8 @@ public class MavenDependencyDownloadUI {
 
             tablePanel.add(jPanel);
             download.addActionListener(e ->{
-                // TODO dependency 下载
+                // 下载
+                UrlAnalyzer.parse(dependency);
             });
         }
 

@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
+import static com.wild.maven.util.SystemConstants.DOWNLOAD_PATH;
 import static org.jetbrains.idea.maven.utils.MavenUtil.isPotentialPomFile;
 
 
@@ -41,6 +42,7 @@ public class PomEditorProvider implements FileEditorProvider, DumbAware {
         if(mavenProject == null){
             return false;
         }
+        DOWNLOAD_PATH = mavenProject.getLocalRepository().getPath();
         return mavenProject.getFile().equals(file);
 
     }

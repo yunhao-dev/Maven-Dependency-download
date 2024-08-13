@@ -13,6 +13,7 @@ repositories {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+    implementation 'org.jsoup:jsoup:1.17.2'
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
@@ -27,4 +28,10 @@ patchPluginXml {
 }
 test {
     useJUnitPlatform()
+}
+configurations {
+    all {
+        exclude group: 'org.slf4j', module: 'slf4j-simple'
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
 }
