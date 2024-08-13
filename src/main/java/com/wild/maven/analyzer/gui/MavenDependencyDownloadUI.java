@@ -47,8 +47,7 @@ public class MavenDependencyDownloadUI {
 
         initUI();
         downloadAllButton.addActionListener(e -> {
-            // 下载所有依赖的逻辑
-            JOptionPane.showMessageDialog(null, "Downloading all...");
+            UrlAnalyzer.parseAll();
         });
 
 

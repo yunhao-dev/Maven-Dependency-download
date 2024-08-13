@@ -33,12 +33,20 @@ public class UrlAnalyzer {
 
     public static void parseAll() {
         List<Dependencie> dependencies = DependenciesHolder.getDependencies();
-        for (Dependencie dependency : dependencies) {
-            List<String> stringList = UrlUtils.splitBySeparator(dependency.getGroupId(), ".");
-            stringList.add(dependency.getArtifactId());
-            stringList.add(dependency.getVersion());
+        for (Dependencie dependencie : dependencies) {
+            List<String> stringList = new ArrayList<>();
+            stringList.addAll(UrlUtils.splitBySeparator(dependencie.getGroupId(), "\\."));
+            stringList.add(dependencie.getArtifactId());
+            stringList.add(dependencie.getVersion());
             String url = UrlUtils.buildUrlPath(MAVEN_BASE_URL, stringList);
-            executeGetRequest(url);
+            List<String> downLoadURLList = executeGetRequest(url);
+
+            // download
+            String downloadBasePath = UrlUtils.buildUrlPath(DOWNLOAD_PATH, stringList);
+
+            for (String downLoadURL : downLoadURLList) {
+                downloadFile(downLoadURL,downloadBasePath);
+            }
         }
     }
 
@@ -86,7 +94,11 @@ public class UrlAnalyzer {
             // 获取文件名
             String fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
             Path filePath = destinationDir.resolve(fileName);
-
+            // 如果文件已存在，则跳过下载
+            if (Files.exists(filePath)) {
+                System.out.println("File already exists: " + filePath);
+                return;
+            }
             // 创建HttpClient实例
             HttpClient client = HttpClient.newHttpClient();
 
