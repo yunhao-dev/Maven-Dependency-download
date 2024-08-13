@@ -9,6 +9,10 @@
     - 该版本(V1.0)只能进行简单的下载,点击下载后请稍等一会重启项目
     - This version (V1.0) can only be downloaded simply, please wait for a while to restart the project after clicking download
     ]]></description>
+    <change-notes><![CDATA[
+    - 修复属性占位符(${})无法替换问题
+    - Fixed an issue where the property placeholder (${}) could not be replaced
+    ]]></change-notes>
 
     <!-- please see https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html
          on how to target different products -->
