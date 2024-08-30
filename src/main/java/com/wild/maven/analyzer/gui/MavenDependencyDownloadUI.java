@@ -36,21 +36,14 @@ public class MavenDependencyDownloadUI {
     private JPanel denTitleGroupPanel;
     private JButton downloadButton;
 
-
-
     public MavenDependencyDownloadUI(@NotNull Project project, VirtualFile file, final MavenProject mavenProject) {
         this.project = project;
         this.file = file;
         mavenProjectsManager = MavenProjectsManager.getInstance(project);
         this.mavenProject = mavenProject;
 
-
         initUI();
-        downloadAllButton.addActionListener(e -> {
-            UrlAnalyzer.parseAll();
-        });
-
-
+        downloadAllButton.addActionListener(e -> downloadAllDependencies());
     }
 
     public JComponent getRootComponent(){
@@ -90,17 +83,47 @@ public class MavenDependencyDownloadUI {
             jPanel.setPreferredSize(new Dimension(tablePanel.getWidth(), 40));
             jPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-            // 设置 Jpanel 上边框
+            // 设置 JPanel 上边框
             jPanel.setBorder(new MatteBorder(1, 0, 0, 0, Color.BLACK));
 
             tablePanel.add(jPanel);
-            download.addActionListener(e ->{
-                // 下载
-                UrlAnalyzer.parse(dependency);
-            });
+            download.addActionListener(e -> downloadDependencyWithNotification(dependency));
         }
 
         // 将 tablePanel 设置为 JScrollPane 的视图组件
         tableScrollPanel.setViewportView(tablePanel);
+    }
+
+    private void downloadAllDependencies() {
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                UrlAnalyzer.parseAll();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                JOptionPane.showMessageDialog(mainPanel, "All dependencies downloaded successfully!");
+            }
+        };
+        worker.execute();
+    }
+
+    private void downloadDependencyWithNotification(Dependencie dependency) {
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                UrlAnalyzer.parse(dependency);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                JOptionPane.showMessageDialog(mainPanel,
+                        "Dependency " + dependency.getArtifactId() + " downloaded successfully!");
+            }
+        };
+        worker.execute();
     }
 }
