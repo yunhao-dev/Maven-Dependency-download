@@ -22,6 +22,9 @@
         <!-- Add your extensions here -->
         <fileEditorProvider implementation="com.wild.maven.analyzer.PomEditorProvider"/>
     </extensions>
+    <dependencies defaultExtensionNs="">
+
+    </dependencies>
 
 
     <actions>

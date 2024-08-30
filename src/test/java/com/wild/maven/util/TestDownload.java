@@ -1,3 +1,10 @@
+package com.wild.maven.util;
+
+import com.intellij.util.download.DownloadableFileDescription;
+import com.intellij.util.download.DownloadableFileService;
+import org.apache.commons.io.FilenameUtils;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -6,6 +13,8 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @description:
@@ -16,8 +25,8 @@ public class TestDownload {
     private static final String fileUrl = "https://repo1.maven.org/maven2/org/springframework/spring-core/4.3.7.RELEASE/spring-core-4.3.7.RELEASE-javadoc.jar";
     private static final String path = "E:\\tools\\apache-maven\\repo/org/springframework/spring-core/4.3.7.RELEASE";
 
-    public static void main(String[] args) {
-        downloadFile(fileUrl, path);
+    public static void main(String[] args) throws IOException {
+        download(fileUrl, path);
     }
 
     private static void downloadFile(String fileUrl, String destinationPath) {
@@ -64,5 +73,16 @@ public class TestDownload {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void download(String fileUrl,String destinationPath) throws IOException {
+        DownloadableFileService fileService = DownloadableFileService.getInstance();
+        String fileName = FilenameUtils.getName(fileUrl);
+        DownloadableFileDescription fileDescription = fileService.createFileDescription(fileUrl, fileName);
+        List<DownloadableFileDescription> fileDescriptions = new ArrayList<>();
+        fileDescriptions.add(fileDescription);
+
+        fileService.createDownloader(fileDescriptions,"").download(new File(path));
+
     }
 }
