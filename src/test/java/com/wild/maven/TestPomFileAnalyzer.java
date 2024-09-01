@@ -90,7 +90,7 @@ public class TestPomFileAnalyzer {
                 return null;
             }
         };
-        PomFileAnalyzer.getDependencies(virtualFile);
+        PomFileAnalyzer.getAllDependencies(virtualFile);
 
     }
 }

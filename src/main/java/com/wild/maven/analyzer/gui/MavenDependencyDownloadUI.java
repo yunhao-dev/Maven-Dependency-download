@@ -10,6 +10,7 @@ import com.wild.maven.UrlAnalyzer;
 import com.wild.maven.model.Dependencie;
 import com.wild.maven.util.DependenciesHolder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
@@ -41,8 +42,7 @@ public class MavenDependencyDownloadUI {
     private JTextField filterTextField;
     private JScrollPane tableScrollPanel;
     private JPanel denTitleGroupPanel;
-    private JRadioButton notDownloadedRadioButton;
-    private JButton downloadButton;
+    private JCheckBox notDownloadCheckBox;
 
     public MavenDependencyDownloadUI(@NotNull Project project, VirtualFile file, final MavenProject mavenProject) {
         this.project = project;
@@ -66,7 +66,7 @@ public class MavenDependencyDownloadUI {
             denTitleGroupPanel.add(jLabel);
         }
 
-        DependenciesHolder.setDependenciesList(PomFileAnalyzer.getDependencies(file));
+        DependenciesHolder.setDependenciesList(PomFileAnalyzer.getAllDependencies(file));
         updateDependenciesTable(DependenciesHolder.getDependencies());
 
         // 添加过滤器的监听器
@@ -87,16 +87,53 @@ public class MavenDependencyDownloadUI {
             }
         });
 
+        notDownloadCheckBox.addActionListener(e -> {
+            if (notDownloadCheckBox.isSelected()) {
+                // 更新 DependenciesHolder 中的依赖列表
+
+                DependenciesHolder.backupDependencies();
+                // 获取Maven项目的所有依赖
+                List<MavenArtifact> mavenProjectDependencies = mavenProject.getDependencies();
+                List<Dependencie> dependencies = DependenciesHolder.getDependencies();
+
+                // 使用集合操作提高效率
+                List<Dependencie> toRemove = new ArrayList<>();
+                for (MavenArtifact mavenProjectDependency : mavenProjectDependencies) {
+                    for (Dependencie dependency : dependencies) {
+                        if (dependency.getGroupId().equals(mavenProjectDependency.getGroupId()) &&
+                                dependency.getArtifactId().equals(mavenProjectDependency.getArtifactId()) &&
+                                dependency.getVersion().equals(mavenProjectDependency.getVersion())) {
+                            toRemove.add(dependency);
+                        }
+                    }
+                }
+                // 移除已下载的依赖
+                dependencies.removeAll(toRemove);
+
+
+            } else {
+                // 如果取消选中，可以在这里恢复原始的依赖列表
+                DependenciesHolder.restoreDependenciesFromBackup();
+            }
+
+            updateDependenciesTable(DependenciesHolder.getDependencies());
+        });
+
     }
 
-    // 过滤依赖项并更新表格显示
+    /**
+     * 过滤依赖项并更新表格显示
+     */
     private void filterDependencies() {
         String filterText = filterTextField.getText();
         List<Dependencie> filteredDependencies = finDependcie(filterText);
         updateDependenciesTable(filteredDependencies);
     }
 
-    // 根据依赖列表更新表格
+    /**
+     * 根据依赖列表更新表格
+     * @param dependencies
+     */
     private void updateDependenciesTable(List<Dependencie> dependencies) {
         // 使用 BoxLayout 纵向排列依赖项
         JPanel tablePanel = new JPanel();
@@ -132,7 +169,11 @@ public class MavenDependencyDownloadUI {
         tableScrollPanel.setViewportView(tablePanel);
     }
 
-    // 筛选符合条件的依赖项
+    /**
+     * 筛选符合条件的依赖项
+     * @param name
+     * @return
+     */
     private List<Dependencie> finDependcie(String name) {
         List<Dependencie> list = new ArrayList<>();
         List<Dependencie> dependencies = DependenciesHolder.getDependencies();
