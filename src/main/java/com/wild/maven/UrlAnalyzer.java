@@ -2,12 +2,7 @@ package com.wild.maven;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.wild.maven.model.Dependencie;
-import com.wild.maven.util.DependenciesHolder;
 import com.wild.maven.util.UrlUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.net.URI;
@@ -31,59 +26,27 @@ public class UrlAnalyzer {
     private static final String MAVEN_BASE_URL = "https://repo1.maven.org/maven2";
     private static final Logger log = Logger.getInstance(UrlAnalyzer.class);
 
-    public static void parseAll() {
-        List<Dependencie> dependencies = DependenciesHolder.getDependencies();
-        for (Dependencie dependencie : dependencies) {
-            List<String> stringList = new ArrayList<>();
-            stringList.addAll(UrlUtils.splitBySeparator(dependencie.getGroupId(), "\\."));
-            stringList.add(dependencie.getArtifactId());
-            stringList.add(dependencie.getVersion());
-            String url = UrlUtils.buildUrlPath(MAVEN_BASE_URL, stringList);
-            List<String> downLoadURLList = executeGetRequest(url);
-
-            // download
-            String downloadBasePath = UrlUtils.buildUrlPath(DOWNLOAD_PATH, stringList);
-
-            for (String downLoadURL : downLoadURLList) {
-                downloadFile(downLoadURL,downloadBasePath);
-            }
-        }
-    }
-
     public static void parse(Dependencie dependencie) {
         List<String> stringList = new ArrayList<>();
         stringList.addAll(UrlUtils.splitBySeparator(dependencie.getGroupId(), "\\."));
         stringList.add(dependencie.getArtifactId());
         stringList.add(dependencie.getVersion());
-        String url = UrlUtils.buildUrlPath(MAVEN_BASE_URL, stringList);
-        List<String> downLoadURLList = executeGetRequest(url);
 
-        // download
+        String baseUrl = UrlUtils.buildUrlPath(MAVEN_BASE_URL, stringList);
+        List<String> fileExtensions = List.of(".jar", ".jar.sha1", ".pom", ".pom.sha1");
+        List<String> downloadUrls = new ArrayList<>();
+
+        for (String extension : fileExtensions) {
+            downloadUrls.add(baseUrl + "/" + dependencie.getArtifactId() + "-" + dependencie.getVersion() + extension);
+        }
+
+        // download files
         String downloadBasePath = UrlUtils.buildUrlPath(DOWNLOAD_PATH, stringList);
-
-        for (String downLoadURL : downLoadURLList) {
-            downloadFile(downLoadURL,downloadBasePath);
+        for (String downloadUrl : downloadUrls) {
+            downloadFile(downloadUrl, downloadBasePath);
         }
     }
 
-    public static List<String> executeGetRequest(String url){
-        List<String> paths = new ArrayList<>();
-        try {
-            Document doc = Jsoup.connect(url).get();
-            Element mainElement = doc.body().selectFirst("main");
-            Elements links = mainElement.select("a[href]");
-            for (Element link : links) {
-                String href = link.attr("href");
-                if("../".equals(href)){
-                    continue;
-                }
-                paths.add(UrlUtils.buildUrlPath(url, href));
-            }
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        return paths;
-    }
     private static void downloadFile(String fileUrl, String destinationPath) {
         try {
             Path destinationDir = Paths.get(destinationPath);
@@ -91,18 +54,15 @@ public class UrlAnalyzer {
                 Files.createDirectories(destinationDir);
             }
 
-            // 获取文件名
             String fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
             Path filePath = destinationDir.resolve(fileName);
-            // 如果文件已存在，则跳过下载
+
             if (Files.exists(filePath)) {
                 System.out.println("File already exists: " + filePath);
                 return;
             }
-            // 创建HttpClient实例
-            HttpClient client = HttpClient.newHttpClient();
 
-            // 创建HttpRequest实例，并设置请求头
+            HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(fileUrl))
                     .header("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
@@ -120,7 +80,6 @@ public class UrlAnalyzer {
                     .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36")
                     .build();
 
-            // 发送请求并下载文件
             HttpResponse<Path> response = client.send(request,
                     HttpResponse.BodyHandlers.ofFile(filePath));
 

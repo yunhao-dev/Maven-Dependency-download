@@ -1,5 +1,8 @@
 package com.wild.maven.analyzer.gui;
 
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.wild.maven.PomFileAnalyzer;
@@ -12,13 +15,17 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.wild.maven.util.DependenciesHolder.TITLE;
 
 /**
- * @description:
+ * @description: Maven Dependency Download UI
  * @Author: yunhao_dev
  * @Date: 2024/8/11 15:13
  */
@@ -46,7 +53,7 @@ public class MavenDependencyDownloadUI {
         downloadAllButton.addActionListener(e -> downloadAllDependencies());
     }
 
-    public JComponent getRootComponent(){
+    public JComponent getRootComponent() {
         return mainPanel;
     }
 
@@ -59,7 +66,37 @@ public class MavenDependencyDownloadUI {
         }
 
         DependenciesHolder.setDependenciesList(PomFileAnalyzer.getDependencies(file));
-        List<Dependencie> dependencies = DependenciesHolder.getDependencies();
+        updateDependenciesTable(DependenciesHolder.getDependencies());
+
+        // 添加过滤器的监听器
+        filterTextField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filterDependencies();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filterDependencies();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                filterDependencies();
+            }
+        });
+
+    }
+
+    // 过滤依赖项并更新表格显示
+    private void filterDependencies() {
+        String filterText = filterTextField.getText();
+        List<Dependencie> filteredDependencies = finDependcie(filterText);
+        updateDependenciesTable(filteredDependencies);
+    }
+
+    // 根据依赖列表更新表格
+    private void updateDependenciesTable(List<Dependencie> dependencies) {
         // 使用 BoxLayout 纵向排列依赖项
         JPanel tablePanel = new JPanel();
         tablePanel.setLayout(new BoxLayout(tablePanel, BoxLayout.Y_AXIS));
@@ -94,36 +131,73 @@ public class MavenDependencyDownloadUI {
         tableScrollPanel.setViewportView(tablePanel);
     }
 
+    // 筛选符合条件的依赖项
+    private List<Dependencie> finDependcie(String name) {
+        List<Dependencie> list = new ArrayList<>();
+        List<Dependencie> dependencies = DependenciesHolder.getDependencies();
+
+        // 将name转换为可以匹配任意字符间隔的正则表达式
+        StringBuilder regexBuilder = new StringBuilder();
+        for (char c : name.toCharArray()) {
+            regexBuilder.append(".*").append(Pattern.quote(String.valueOf(c)));
+        }
+        regexBuilder.append(".*");
+
+        // 编译正则表达式
+        Pattern pattern = Pattern.compile(regexBuilder.toString(), Pattern.CASE_INSENSITIVE);
+
+        for (Dependencie dependency : dependencies) {
+            // 如果groupId或artifactId匹配正则表达式，则添加到list中
+            if (pattern.matcher(dependency.getGroupId()).matches() ||
+                    pattern.matcher(dependency.getArtifactId()).matches()) {
+                list.add(dependency);
+            }
+        }
+        return list;
+    }
+
     private void downloadAllDependencies() {
-        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        Task.Backgroundable task = new Task.Backgroundable(project, "Downloading Dependencies", true) {
             @Override
-            protected Void doInBackground() {
-                UrlAnalyzer.parseAll();
-                return null;
+            public void run(@NotNull ProgressIndicator indicator) {
+                List<Dependencie> dependencies = DependenciesHolder.getDependencies();
+                int totalDependencies = dependencies.size();
+                for (int i = 0; i < totalDependencies; i++) {
+                    if (indicator.isCanceled()) {
+                        break;
+                    }
+                    Dependencie dependency = dependencies.get(i);
+                    UrlAnalyzer.parse(dependency);
+
+                    // 更新进度条
+                    indicator.setFraction((double) (i + 1) / totalDependencies);
+                    indicator.setText2("Downloading " + dependency.getArtifactId());
+                }
             }
 
             @Override
-            protected void done() {
+            public void onSuccess() {
                 JOptionPane.showMessageDialog(mainPanel, "All dependencies downloaded successfully!");
             }
         };
-        worker.execute();
+
+        ProgressManager.getInstance().run(task);
     }
 
     private void downloadDependencyWithNotification(Dependencie dependency) {
-        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        Task.Backgroundable task = new Task.Backgroundable(project, "Downloading " + dependency.getArtifactId(), true) {
             @Override
-            protected Void doInBackground() {
+            public void run(@NotNull ProgressIndicator indicator) {
                 UrlAnalyzer.parse(dependency);
-                return null;
             }
 
             @Override
-            protected void done() {
+            public void onSuccess() {
                 JOptionPane.showMessageDialog(mainPanel,
                         "Dependency " + dependency.getArtifactId() + " downloaded successfully!");
             }
         };
-        worker.execute();
+
+        ProgressManager.getInstance().run(task);
     }
 }
