@@ -4,16 +4,15 @@
     <vendor email="2384982531@qq.com">yunhao_dev</vendor>
 
     <description><![CDATA[
-    - Fix the issue that Maven Pom file dependencies fail to be downloaded
-    - 解决Maven Pom文件依赖下载失败问题<br>
-    - This version (V1.0) can only be downloaded simply, please wait for a while to restart the project after clicking download
-    - 该版本(V1.0)只能进行简单的下载,点击下载后请稍等一会重启项目
-    - When you filter for dependencies that are not downloaded, the Download All button downloads all the filtered dependencies
-    - 当筛选未下载的依赖时，Download All按钮会下载所有筛选出的依赖
+    - Fix the issue that Maven Pom file dependencies fail to be downloaded.
+    - This version (V1.0) can only perform basic downloads. After clicking download, please wait for a while before restarting the project.
+    - When you filter for dependencies that are not downloaded, the "Download All" button will download all the filtered dependencies.
+    - 解决 Maven Pom 文件依赖下载失败问题。
+    - 该版本 (V1.0) 只能进行简单的下载，点击下载后请稍等一会儿再重启项目。
+    - 当筛选未下载的依赖时，"Download All" 按钮将下载所有筛选出的依赖。
     ]]></description>
     <change-notes><![CDATA[
-    - 修复属性占位符(${})无法替换问题
-    - Fixed an issue where the property placeholder (${}) could not be replaced
+
     ]]></change-notes>
 
     <!-- please see https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html
@@ -24,13 +23,5 @@
         <!-- Add your extensions here -->
         <fileEditorProvider implementation="com.wild.maven.analyzer.PomEditorProvider"/>
     </extensions>
-    <dependencies defaultExtensionNs="">
 
-    </dependencies>
-
-
-    <actions>
-        <!-- Add your actions here -->
-
-    </actions>
 </idea-plugin>
