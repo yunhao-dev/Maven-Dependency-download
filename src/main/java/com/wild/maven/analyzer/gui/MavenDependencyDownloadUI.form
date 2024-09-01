@@ -17,11 +17,6 @@
           <text value="Download All"/>
         </properties>
       </component>
-      <hspacer id="45523">
-        <constraints>
-          <grid row="0" column="1" row-span="1" col-span="2" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </hspacer>
       <component id="f845" class="javax.swing.JTextField" binding="filterTextField">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
@@ -59,6 +54,14 @@
         <border type="none"/>
         <children/>
       </grid>
+      <component id="7da40" class="javax.swing.JRadioButton" binding="notDownloadedRadioButton">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="未下载"/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>

@@ -41,6 +41,7 @@ public class MavenDependencyDownloadUI {
     private JTextField filterTextField;
     private JScrollPane tableScrollPanel;
     private JPanel denTitleGroupPanel;
+    private JRadioButton notDownloadedRadioButton;
     private JButton downloadButton;
 
     public MavenDependencyDownloadUI(@NotNull Project project, VirtualFile file, final MavenProject mavenProject) {
@@ -175,10 +176,7 @@ public class MavenDependencyDownloadUI {
                 }
             }
 
-            @Override
-            public void onSuccess() {
-                JOptionPane.showMessageDialog(mainPanel, "All dependencies downloaded successfully!");
-            }
+
         };
 
         ProgressManager.getInstance().run(task);
@@ -189,12 +187,6 @@ public class MavenDependencyDownloadUI {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 UrlAnalyzer.parse(dependency);
-            }
-
-            @Override
-            public void onSuccess() {
-                JOptionPane.showMessageDialog(mainPanel,
-                        "Dependency " + dependency.getArtifactId() + " downloaded successfully!");
             }
         };
 
